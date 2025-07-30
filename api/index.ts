@@ -235,7 +235,7 @@ async function fetchBingoData(pageId: string) {
         };
     } catch (error) {
         console.error(`Error fetching bingo data for ${pageId}:`, error);
-        return { 
+        return {
             error: 'Failed to fetch bingo data',
             details: (error as any).message,
             code: (error as any).code
@@ -270,7 +270,7 @@ app.get('/api/bingo/:pageId', async (req, res) => {
 });
 
 app.get('/api/test', (req, res) => {
-    res.json({ 
+    res.json({
         message: 'API is working!',
         timestamp: new Date().toISOString(),
         method: req.method
