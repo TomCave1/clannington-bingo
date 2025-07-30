@@ -59,8 +59,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
         const pages = Object.keys(BINGO_SHEETS).map(pageId => ({
             id: pageId,
-            title: BINGO_SHEETS[pageId].title,
-            hasConfig: !!BINGO_SHEETS[pageId].sheetId
+            title: BINGO_SHEETS[pageId as keyof typeof BINGO_SHEETS].title,
+            hasConfig: !!BINGO_SHEETS[pageId as keyof typeof BINGO_SHEETS].sheetId
         }));
         res.json({ pages });
     } catch (error) {

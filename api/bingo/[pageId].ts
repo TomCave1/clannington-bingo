@@ -89,7 +89,7 @@ const BINGO_SHEETS = {
 // Function to fetch bingo data from a specific Google Sheet
 async function fetchBingoData(pageId: string) {
     try {
-        const config = BINGO_SHEETS[pageId];
+        const config = BINGO_SHEETS[pageId as keyof typeof BINGO_SHEETS];
         if (!config || !config.sheetId) {
             return { error: `No configuration found for page: ${pageId}` };
         }
@@ -232,8 +232,8 @@ async function fetchBingoData(pageId: string) {
         console.error(`Error fetching bingo data for ${pageId}:`, error);
         return { 
             error: 'Failed to fetch bingo data',
-            details: error.message,
-            code: error.code
+                           details: (error as any).message,
+               code: (error as any).code
         };
     }
 }
