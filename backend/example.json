@@ -1,0 +1,118 @@
+{
+    "data": [
+        {
+            "id": "Barrows",
+            "value": "0"
+        },
+        {
+            "id": "Huey",
+            "value": "0"
+        },
+        {
+            "id": "SRA",
+            "value": "0"
+        },
+        {
+            "id": "Horn",
+            "value": "0"
+        },
+        {
+            "id": "Muspah",
+            "value": "0"
+        },
+        {
+            "id": "Nightmare",
+            "value": "0"
+        },
+        {
+            "id": "Visage",
+            "value": "0"
+        },
+        {
+            "id": "Jar",
+            "value": "0"
+        },
+        {
+            "id": "Pet",
+            "value": "0"
+        },
+        {
+            "id": "Nox Hally",
+            "value": "0"
+        },
+        {
+            "id": "Godsword",
+            "value": "0"
+        },
+        {
+            "id": "LotR",
+            "value": "0"
+        },
+        {
+            "id": "Mega Rare",
+            "value": "0"
+        },
+        {
+            "id": "Revs",
+            "value": "0"
+        },
+        {
+            "id": "F2P",
+            "value": "0"
+        },
+        {
+            "id": "Voidwaker",
+            "value": "0"
+        },
+        {
+            "id": "TD's",
+            "value": "0"
+        },
+        {
+            "id": "Parsec",
+            "value": "0"
+        },
+        {
+            "id": "Zulrah",
+            "value": "0"
+        },
+        {
+            "id": "Nex",
+            "value": "0"
+        },
+        {
+            "id": "Mix Up Head",
+            "value": "0"
+        },
+        {
+            "id": "Mix Up Body",
+            "value": "0"
+        },
+        {
+            "id": "Mix Up Bottom",
+            "value": "0"
+        },
+        {
+            "id": "Enrage",
+            "value": "0"
+        },
+        {
+            "id": "Dust",
+            "value": "0"
+        },
+        {
+            "id": "Boppers",
+            "value": "0"
+        },
+        {
+            "id": "CG",
+            "value": "0"
+        }
+    ],
+    "headers": [
+        "id",
+        "value"
+    ],
+    "title": "Bingo Page 2",
+    "pageId": "page2"
+}
