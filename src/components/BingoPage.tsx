@@ -39,7 +39,7 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
         try {
             setLoading(true);
             setError(null);
-            const response = await fetch(`https://clannington-bingo.vercel.app/api/bingo/${pageId}`);
+            const response = await fetch(`/api/bingo/${pageId}`);
             const data = await response.json();
 
             if (data.error) {
@@ -58,7 +58,7 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
         try {
             setLoading(true);
             setError(null);
-            const response = await fetch(`https://clannington-bingo.vercel.app/api/bingo/teamScore`);
+            const response = await fetch(`/api/bingo/teamScore`);
             const data = await response.json();
             setTeamScoreData(data);
             if (data.error) {
@@ -218,7 +218,7 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
                                 }}
                             >
                                 <span className="bingo-item-image" style={{
-                                    backgroundImage: `url(https://clannington-bingo.vercel.app/api/image/${encodeURIComponent(item.id)})`,
+                                    backgroundImage: `url(/${encodeURIComponent(item.id)}.png)`,
                                     backgroundSize: 'contain',
                                     backgroundPosition: 'center',
                                     backgroundRepeat: 'no-repeat'
