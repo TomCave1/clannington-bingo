@@ -1,5 +1,5 @@
-import { google } from 'googleapis';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { google } from 'googleapis';
 
 // Google Sheets API setup
 let auth: any;
@@ -7,7 +7,6 @@ let auth: any;
 try {
     // Check if we have individual service account environment variables
     if (process.env.GOOGLE_SERVICE_ACCOUNT_TYPE && process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY) {
-        // Use individual environment variables for credentials (cleaner approach)
         const credentials = {
             type: process.env.GOOGLE_SERVICE_ACCOUNT_TYPE,
             project_id: process.env.GOOGLE_SERVICE_ACCOUNT_PROJECT_ID,
@@ -26,14 +25,12 @@ try {
             scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
         });
     } else if (process.env.GOOGLE_SERVICE_ACCOUNT_KEY) {
-        // Fallback to single environment variable (legacy approach)
         const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
         auth = new google.auth.GoogleAuth({
             credentials,
             scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
         });
     } else {
-        // Fallback to keyFile (for local development)
         const keyFile = process.env.GOOGLE_APPLICATION_CREDENTIALS || './credentials.json';
         auth = new google.auth.GoogleAuth({
             keyFile,
@@ -230,18 +227,18 @@ async function fetchBingoData(pageId: string) {
         };
     } catch (error) {
         console.error(`Error fetching bingo data for ${pageId}:`, error);
-        return { 
+        return {
             error: 'Failed to fetch bingo data',
-                           details: (error as any).message,
-               code: (error as any).code
+            details: (error as any).message,
+            code: (error as any).code
         };
     }
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // Enable CORS
+    // Add CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     if (req.method === 'OPTIONS') {
@@ -249,14 +246,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return;
     }
 
-    if (req.method !== 'GET') {
-        res.status(405).json({ error: 'Method not allowed' });
-        return;
-    }
+    // Add cache-busting headers
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
 
     try {
         const { pageId } = req.query;
-        const bingoData = await fetchBingoData(pageId as string);
+        if (!pageId || typeof pageId !== 'string') {
+            res.status(400).json({ error: 'Page ID is required' });
+            return;
+        }
+
+        const bingoData = await fetchBingoData(pageId);
         res.json(bingoData);
     } catch (error) {
         console.error(`Error in /api/bingo/${req.query.pageId} endpoint:`, error);

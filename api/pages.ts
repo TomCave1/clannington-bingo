@@ -1,4 +1,3 @@
-import { google } from 'googleapis';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 // Configuration for multiple bingo sheets
@@ -40,10 +39,10 @@ const BINGO_SHEETS = {
     }
 };
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // Enable CORS
+export default function handler(req: VercelRequest, res: VercelResponse) {
+    // Add CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     if (req.method === 'OPTIONS') {
@@ -51,10 +50,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return;
     }
 
-    if (req.method !== 'GET') {
-        res.status(405).json({ error: 'Method not allowed' });
-        return;
-    }
+    // Add cache-busting headers
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
 
     try {
         const pages = Object.keys(BINGO_SHEETS).map(pageId => ({
