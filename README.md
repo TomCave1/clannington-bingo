@@ -112,7 +112,7 @@ Example:
 
 3. **Open your browser**:
    - Frontend: http://localhost:5173
-   - Backend API: http://localhost:4000
+   - Backend API: https://clannington-bingo.vercel.app
 
 ### Production Build
 

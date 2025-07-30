@@ -21,7 +21,7 @@ function App() {
   const fetchPages = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:4000/api/pages');
+      const response = await fetch('https://clannington-bingo.vercel.app/api/pages');
       const data = await response.json();
       setPages(data.pages);
 
