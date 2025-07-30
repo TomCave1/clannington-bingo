@@ -246,6 +246,11 @@ async function fetchBingoData(pageId: string) {
 // API Routes
 app.get('/api/pages', (req, res) => {
     try {
+        // Add cache-busting headers
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        
         const pages = Object.keys(BINGO_SHEETS).map(pageId => ({
             id: pageId,
             title: BINGO_SHEETS[pageId as keyof typeof BINGO_SHEETS].title,
@@ -260,6 +265,11 @@ app.get('/api/pages', (req, res) => {
 
 app.get('/api/bingo/:pageId', async (req, res) => {
     try {
+        // Add cache-busting headers
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        
         const { pageId } = req.params;
         const bingoData = await fetchBingoData(pageId);
         res.json(bingoData);
@@ -270,6 +280,11 @@ app.get('/api/bingo/:pageId', async (req, res) => {
 });
 
 app.get('/api/test', (req, res) => {
+    // Add cache-busting headers
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    
     res.json({
         message: 'API is working!',
         timestamp: new Date().toISOString(),
