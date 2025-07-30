@@ -13,6 +13,8 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     res.json({ 
         message: 'API is working!',
         timestamp: new Date().toISOString(),
-        method: req.method
+        method: req.method,
+        url: req.url,
+        headers: req.headers
     });
 } 
