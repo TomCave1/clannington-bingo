@@ -16,10 +16,79 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 // Google Sheets API setup
-const auth = new google.auth.GoogleAuth({
-    keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS || './credentials.json',
-    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-});
+let auth: any;
+
+try {
+    // Check if we have individual service account environment variables
+    if (process.env.GOOGLE_SERVICE_ACCOUNT_TYPE && process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY) {
+        // Use individual environment variables for credentials (cleaner approach)
+        console.log('Using individual Google service account environment variables');
+        console.log('Private key length:', process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY?.length);
+        console.log('Private key starts with:', process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY?.substring(0, 50));
+        console.log('Private key ends with:', process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY?.substring(process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY.length - 50));
+
+        // Test the credentials object
+        const testCredentials = {
+            type: process.env.GOOGLE_SERVICE_ACCOUNT_TYPE,
+            project_id: process.env.GOOGLE_SERVICE_ACCOUNT_PROJECT_ID,
+            private_key_id: process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY_ID,
+            private_key: process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY?.replace(/\\n/g, '\n').replace(/^"|"$/g, ''),
+            client_email: process.env.GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL,
+            client_id: process.env.GOOGLE_SERVICE_ACCOUNT_CLIENT_ID,
+            auth_uri: process.env.GOOGLE_SERVICE_ACCOUNT_AUTH_URI || 'https://accounts.google.com/o/oauth2/auth',
+            token_uri: process.env.GOOGLE_SERVICE_ACCOUNT_TOKEN_URI || 'https://oauth2.googleapis.com/token',
+            auth_provider_x509_cert_url: process.env.GOOGLE_SERVICE_ACCOUNT_AUTH_PROVIDER_X509_CERT_URL || 'https://www.googleapis.com/oauth2/v1/certs',
+            client_x509_cert_url: process.env.GOOGLE_SERVICE_ACCOUNT_CLIENT_X509_CERT_URL,
+            universe_domain: process.env.GOOGLE_SERVICE_ACCOUNT_UNIVERSE_DOMAIN || 'googleapis.com'
+        };
+
+        console.log('Test credentials object:', {
+            type: testCredentials.type,
+            project_id: testCredentials.project_id,
+            private_key_id: testCredentials.private_key_id,
+            private_key_length: testCredentials.private_key?.length,
+            client_email: testCredentials.client_email,
+            client_id: testCredentials.client_id
+        });
+
+        const credentials = {
+            type: process.env.GOOGLE_SERVICE_ACCOUNT_TYPE,
+            project_id: process.env.GOOGLE_SERVICE_ACCOUNT_PROJECT_ID,
+            private_key_id: process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY_ID,
+            private_key: process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY?.replace(/\\n/g, '\n').replace(/^"|"$/g, ''),
+            client_email: process.env.GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL,
+            client_id: process.env.GOOGLE_SERVICE_ACCOUNT_CLIENT_ID,
+            auth_uri: process.env.GOOGLE_SERVICE_ACCOUNT_AUTH_URI || 'https://accounts.google.com/o/oauth2/auth',
+            token_uri: process.env.GOOGLE_SERVICE_ACCOUNT_TOKEN_URI || 'https://oauth2.googleapis.com/token',
+            auth_provider_x509_cert_url: process.env.GOOGLE_SERVICE_ACCOUNT_AUTH_PROVIDER_X509_CERT_URL || 'https://www.googleapis.com/oauth2/v1/certs',
+            client_x509_cert_url: process.env.GOOGLE_SERVICE_ACCOUNT_CLIENT_X509_CERT_URL,
+            universe_domain: process.env.GOOGLE_SERVICE_ACCOUNT_UNIVERSE_DOMAIN || 'googleapis.com'
+        };
+        auth = new google.auth.GoogleAuth({
+            credentials,
+            scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+        });
+    } else if (process.env.GOOGLE_SERVICE_ACCOUNT_KEY) {
+        // Fallback to single environment variable (legacy approach)
+        console.log('Using GOOGLE_SERVICE_ACCOUNT_KEY environment variable');
+        const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
+        auth = new google.auth.GoogleAuth({
+            credentials,
+            scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+        });
+    } else {
+        // Fallback to keyFile (for local development)
+        const keyFile = process.env.GOOGLE_APPLICATION_CREDENTIALS || './credentials.json';
+        console.log(`Using keyFile: ${keyFile}`);
+        auth = new google.auth.GoogleAuth({
+            keyFile,
+            scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+        });
+    }
+} catch (error) {
+    console.error('Error setting up Google Auth:', error);
+    throw error;
+}
 
 const sheets = google.sheets({ version: 'v4', auth });
 
@@ -92,6 +161,95 @@ app.get('/api/debug/sheets', async (req, res) => {
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Debug endpoint to check authentication setup
+app.get('/api/debug/auth', (req, res) => {
+    try {
+        const authInfo = {
+            // Individual service account variables
+            hasServiceAccountType: !!process.env.GOOGLE_SERVICE_ACCOUNT_TYPE,
+            hasServiceAccountPrivateKey: !!process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
+            hasServiceAccountProjectId: !!process.env.GOOGLE_SERVICE_ACCOUNT_PROJECT_ID,
+            hasServiceAccountClientEmail: !!process.env.GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL,
+
+            // Legacy single variable
+            hasServiceAccountKey: !!process.env.GOOGLE_SERVICE_ACCOUNT_KEY,
+
+            // File-based credentials
+            hasApplicationCredentials: !!process.env.GOOGLE_APPLICATION_CREDENTIALS,
+            credentialsPath: process.env.GOOGLE_APPLICATION_CREDENTIALS || './credentials.json',
+
+            // Sheet configuration
+            hasGoogleSheetId: !!process.env.GOOGLE_SHEET_ID,
+            googleSheetId: process.env.GOOGLE_SHEET_ID,
+            hasPage1SheetId: !!process.env.GOOGLE_SHEET_ID_PAGE1,
+            hasPage2SheetId: !!process.env.GOOGLE_SHEET_ID_PAGE2,
+            hasPage3SheetId: !!process.env.GOOGLE_SHEET_ID_PAGE3,
+        };
+        res.json(authInfo);
+    } catch (error) {
+        console.error('Error in auth debug endpoint:', error);
+        res.status(500).json({ error: 'Failed to get auth info' });
+    }
+});
+
+// Test endpoint to verify authentication only
+app.get('/api/debug/test-auth', async (req, res) => {
+    try {
+        console.log('Testing authentication only...');
+
+        // Just try to get an access token
+        const client = await auth.getClient();
+        const accessToken = await client.getAccessToken();
+
+        res.json({
+            success: true,
+            hasAccessToken: !!accessToken.token,
+            tokenType: accessToken.token ? 'Bearer' : null
+        });
+    } catch (error) {
+        console.error('Error testing authentication:', error);
+        res.status(500).json({
+            error: 'Failed to authenticate',
+            details: error.message,
+            code: error.code
+        });
+    }
+});
+
+// Test endpoint to verify Google Sheets access
+app.get('/api/debug/test-sheets', async (req, res) => {
+    try {
+        const spreadsheetId = process.env.GOOGLE_SHEET_ID;
+        if (!spreadsheetId) {
+            res.status(400).json({ error: 'GOOGLE_SHEET_ID not configured' });
+            return;
+        }
+
+        console.log('Testing access to spreadsheet:', spreadsheetId);
+
+        const response = await sheets.spreadsheets.get({
+            spreadsheetId,
+        });
+
+        res.json({
+            success: true,
+            spreadsheetId,
+            title: response.data.properties?.title,
+            sheets: response.data.sheets?.map(sheet => ({
+                title: sheet.properties?.title,
+                sheetId: sheet.properties?.sheetId
+            }))
+        });
+    } catch (error) {
+        console.error('Error testing sheets access:', error);
+        res.status(500).json({
+            error: 'Failed to access Google Sheets',
+            details: error.message,
+            code: error.code
+        });
+    }
 });
 
 //Image endpoint to serve images by ID
@@ -187,17 +345,23 @@ const BINGO_SHEETS = {
 async function fetchBingoData(pageId: string) {
     try {
         const config = BINGO_SHEETS[pageId];
+        console.log(`Fetching data for ${pageId}:`, { sheetId: config?.sheetId, range: config?.range });
+
         if (!config || !config.sheetId) {
+            console.error(`No configuration found for page: ${pageId}`);
             return { error: `No configuration found for page: ${pageId}` };
         }
 
+        console.log(`Making API call to Google Sheets: ${config.sheetId}, range: ${config.range}`);
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: config.sheetId,
             range: config.range,
         });
 
+        console.log(`Received response for ${pageId}:`, { rowCount: response.data.values?.length || 0 });
         const rows = response.data.values;
         if (!rows || rows.length === 0) {
+            console.error(`No data found in spreadsheet for ${pageId}`);
             return { error: 'No data found in the spreadsheet' };
         }
 
@@ -331,6 +495,16 @@ async function fetchBingoData(pageId: string) {
         };
     } catch (error) {
         console.error(`Error fetching bingo data for ${pageId}:`, error);
-        return { error: 'Failed to fetch bingo data' };
+        console.error(`Error details:`, {
+            message: error.message,
+            code: error.code,
+            status: error.status,
+            config: error.config
+        });
+        return {
+            error: 'Failed to fetch bingo data',
+            details: error.message,
+            code: error.code
+        };
     }
 } 
