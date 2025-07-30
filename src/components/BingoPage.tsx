@@ -39,7 +39,8 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
         try {
             setLoading(true);
             setError(null);
-            const response = await fetch(`/api/bingo/${pageId}`);
+            const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:4000' : '';
+            const response = await fetch(`${apiBase}/api/bingo/${pageId}`);
             const data = await response.json();
 
             if (data.error) {
@@ -58,7 +59,8 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
         try {
             setLoading(true);
             setError(null);
-            const response = await fetch(`/api/bingo/teamScore`);
+            const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:4000' : '';
+            const response = await fetch(`${apiBase}/api/bingo/teamScore`);
             const data = await response.json();
             setTeamScoreData(data);
             if (data.error) {

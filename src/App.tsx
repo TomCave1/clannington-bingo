@@ -21,7 +21,8 @@ function App() {
   const fetchPages = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/pages');
+      const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:4000' : '';
+      const response = await fetch(`${apiBase}/api/pages`);
       const data = await response.json();
       setPages(data.pages);
 
