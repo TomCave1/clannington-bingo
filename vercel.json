@@ -59,6 +59,10 @@
       "destination": "/api/debug-env.js"
     },
     {
+      "source": "/api/debug-sheets",
+      "destination": "/api/debug-sheets.js"
+    },
+    {
       "source": "/api/hello",
       "destination": "/api/hello.mjs"
     },
