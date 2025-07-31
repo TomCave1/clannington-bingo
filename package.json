@@ -9,7 +9,7 @@
     "dev": "concurrently \"npm run backend\" \"npm run dev:frontend\"",
     "backend": "tsx backend/server.ts",
     "dev:frontend": "vite",
-    "vercel-build": "vite build"
+    "vercel-build": "npm run build"
   },
   "dependencies": {
     "@types/dotenv": "^6.1.1",
