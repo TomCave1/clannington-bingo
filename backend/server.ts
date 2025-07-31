@@ -399,108 +399,108 @@ async function fetchBingoData(pageId: string) {
                 'Revs': 3,
                 'F2P': 2,
                 'Voidwaker': 3,
-                `TD\'s`: 2,
+                "TD's": 2,
                 'Parsec': 2,
-                    'Zulrah': 4,
-                        'Nex': 1,
-                            'Mix Up': 3,
-                                'Enrage': 1,
-                                    'Dust': 1,
-                                        'Boppers': 5,
-                                            'CG': 7,
+                'Zulrah': 4,
+                'Nex': 1,
+                'Mix Up': 3,
+                'Enrage': 1,
+                'Dust': 1,
+                'Boppers': 5,
+                'CG': 7,
             };
 
-        const points: { [id: string]: number } = {
-            'Titans': 3,
-            'Barrows + Moons': 4,
-            'Huey': 3,
-            'SRA': 6,
-            'Horn': 5,
-            'Muspah': 4,
-            'Nightmare': 5,
-            'Visage': 4,
-            '2 Pets 1 Jar': 5,
-            'Nox Hally': 3,
-            'Any Godsword': 4,
-            'LotR': 4,
-            'Mega Rare': 6,
-            'Revs': 4,
-            'F2P': 3,
-            'Voidwaker': 5,
-                `TD\'s`: 3,
-            'Parsec': 4,
+            const points: { [id: string]: number } = {
+                'Titans': 3,
+                'Barrows + Moons': 4,
+                'Huey': 3,
+                'SRA': 6,
+                'Horn': 5,
+                'Muspah': 4,
+                'Nightmare': 5,
+                'Visage': 4,
+                '2 Pets 1 Jar': 5,
+                'Nox Hally': 3,
+                'Any Godsword': 4,
+                'LotR': 4,
+                'Mega Rare': 6,
+                'Revs': 4,
+                'F2P': 3,
+                'Voidwaker': 5,
+                "TD's": 3,
+                'Parsec': 4,
                 'Zulrah': 4,
-                    'Nex': 5,
-                        'Mix Up': 5,
-                            'Enrage': 5,
-                                'Dust': 4,
-                                    'Boppers': 2,
-                                        'CG': 5,
+                'Nex': 5,
+                'Mix Up': 5,
+                'Enrage': 5,
+                'Dust': 4,
+                'Boppers': 2,
+                'CG': 5,
             }
 
             let mergedData: { id: string; value: string; limit: number; points: number | null }[] = [];
-    let skipIds = new Set();
+            let skipIds = new Set();
 
-    for (let i = 0; i < rawData.length; i++) {
-        const item = rawData[i];
-        if (skipIds.has(item.id)) continue;
+            for (let i = 0; i < rawData.length; i++) {
+                const item = rawData[i];
+                if (skipIds.has(item.id)) continue;
 
-        // Check if this item starts a merge group
-        const group = mergeGroups.find(g => g.ids.includes(item.id) && g.ids.every(id => rawData.some(r => r.id === id)));
-        if (group && group.ids[0] === item.id) {
-            // Merge values
-            const sum = group.ids.reduce((acc, id) => {
-                skipIds.add(id);
-                const found = rawData.find(r => r.id === id);
-                return acc + (found ? found.value : 0);
-            }, 0);
-            mergedData.push({
-                id: group.newId,
-                value: sum.toString(),
-                limit: limits[group.newId] ?? null,
-                points: points[group.newId] ?? 0
-            });
-        } else if (!skipIds.has(item.id)) {
-            const outputId = item.id === 'Twinflame Staff' ? 'Titans' : item.id;
-            mergedData.push({
-                id: outputId,
-                value: item.value.toString(),
-                limit: limits[outputId] ?? null,
-                points: points[outputId] ?? 0
+                // Check if this item starts a merge group
+                const group = mergeGroups.find(g => g.ids.includes(item.id) && g.ids.every(id => rawData.some(r => r.id === id)));
+                if (group && group.ids[0] === item.id) {
+                    // Merge values
+                    const sum = group.ids.reduce((acc, id) => {
+                        skipIds.add(id);
+                        const found = rawData.find(r => r.id === id);
+                        return acc + (found ? found.value : 0);
+                    }, 0);
+                    mergedData.push({
+                        id: group.newId,
+                        value: sum.toString(),
+                        limit: limits[group.newId] ?? null,
+                        points: points[group.newId] ?? 0
+                    });
+                } else if (!skipIds.has(item.id)) {
+                    const outputId = item.id === 'Twinflame Staff' ? 'Titans' : item.id;
+                    mergedData.push({
+                        id: outputId,
+                        value: item.value.toString(),
+                        limit: limits[outputId] ?? null,
+                        points: points[outputId] ?? 0
+                    });
+                }
+            }
+
+            data = mergedData;
+            headers = ['id', 'value'];
+        } else {
+            data = rows.slice(1).map(row => {
+                const item: any = {};
+                headers.forEach((header: string, index: number) => {
+                    item[header] = row[index] || '';
+                });
+                return item;
             });
         }
-    }
 
-    data = mergedData;
-    headers = ['id', 'value'];
-} else {
-    data = rows.slice(1).map(row => {
-        const item: any = {};
-        headers.forEach((header: string, index: number) => {
-            item[header] = row[index] || '';
-        });
-        return item;
-    });
-}
-
-return {
-    data,
-    headers,
-    title: config.title,
-    pageId
-};
+        return {
+            data,
+            headers,
+            title: config.title,
+            pageId
+        };
     } catch (error) {
-    console.error(`Error fetching bingo data for ${pageId}:`, error);
-    console.error(`Error details:`, {
-        message: error.message,
-        code: error.code,
-        status: error.status,
-        config: error.config
-    });
-    return {
-        error: 'Failed to fetch bingo data',
-        details: error.message,
-        code: error.code
-    };
-}
+        console.error(`Error fetching bingo data for ${pageId}:`, error);
+        console.error(`Error details:`, {
+            message: error.message,
+            code: error.code,
+            status: error.status,
+            config: error.config
+        });
+        return {
+            error: 'Failed to fetch bingo data',
+            details: error.message,
+            code: error.code
+        };
+    }
 } 
