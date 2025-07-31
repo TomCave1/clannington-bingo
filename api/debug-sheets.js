@@ -69,18 +69,45 @@ export default async function handler(req, res) {
             return;
         }
 
-        const range = `'${teamName}'!${tilesRange}`;
-
         // First, let's get the sheet metadata to see what sheets exist
         const metadataResponse = await sheets.spreadsheets.get({
             spreadsheetId: sheetId,
         });
 
-        // Then try to get the actual data
-        const dataResponse = await sheets.spreadsheets.values.get({
-            spreadsheetId: sheetId,
-            range: range,
-        });
+        // Test multiple ranges to find where the data actually is
+        const testRanges = [
+            `'${teamName}'!${tilesRange}`,
+            `'${teamName}'!A1:Z100`,
+            `'${teamName}'!A1:Z50`,
+            `'${teamName}'!E1:G100`,
+            `'${teamName}'!A:E`,
+            `'${teamName}'!1:100`
+        ];
+
+        const rangeResults = {};
+
+        for (const range of testRanges) {
+            try {
+                const dataResponse = await sheets.spreadsheets.values.get({
+                    spreadsheetId: sheetId,
+                    range: range,
+                });
+
+                rangeResults[range] = {
+                    range: dataResponse.data.range,
+                    majorDimension: dataResponse.data.majorDimension,
+                    valueCount: dataResponse.data.values?.length || 0,
+                    hasData: dataResponse.data.values && dataResponse.data.values.length > 0 &&
+                        dataResponse.data.values.some(row => row && row.length > 0 &&
+                            row.some(cell => cell && cell.toString().trim() !== '')),
+                    firstFewRows: dataResponse.data.values?.slice(0, 3) || []
+                };
+            } catch (error) {
+                rangeResults[range] = {
+                    error: error.message
+                };
+            }
+        }
 
         res.json({
             message: 'Google Sheets Debug Info',
@@ -88,7 +115,6 @@ export default async function handler(req, res) {
             sheetId: sheetId,
             teamName: teamName,
             tilesRange: tilesRange,
-            fullRange: range,
             sheetMetadata: {
                 title: metadataResponse.data.properties?.title,
                 sheets: metadataResponse.data.sheets?.map(sheet => ({
@@ -96,12 +122,7 @@ export default async function handler(req, res) {
                     sheetId: sheet.properties?.sheetId
                 }))
             },
-            dataResponse: {
-                range: dataResponse.data.range,
-                majorDimension: dataResponse.data.majorDimension,
-                values: dataResponse.data.values,
-                valueCount: dataResponse.data.values?.length || 0
-            }
+            rangeResults: rangeResults
         });
     } catch (error) {
         console.error('Error in debug-sheets:', error);
