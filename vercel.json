@@ -19,8 +19,16 @@
       "destination": "/api/pages.mjs"
     },
     {
-      "source": "/api/bingo/(.*)",
+      "source": "/api/bingo/page1",
+      "destination": "/api/bingo/page1.js"
+    },
+    {
+      "source": "/api/bingo/:pageId",
       "destination": "/api/bingo/[pageId].js"
+    },
+    {
+      "source": "/api/bingo-test",
+      "destination": "/api/bingo-test.js"
     },
     {
       "source": "/api/hello",
