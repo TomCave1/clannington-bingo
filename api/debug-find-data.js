@@ -57,80 +57,73 @@ export default async function handler(req, res) {
     try {
         const sheetId = process.env.GOOGLE_SHEET_ID;
         const teamName = process.env.BONESSA_TEAM;
-        const tilesRange = process.env.TILES;
-
+        
         if (!sheetId) {
             res.status(500).json({ error: 'Google Sheet ID not configured' });
             return;
         }
 
-        if (!teamName || !tilesRange) {
-            res.status(500).json({ error: 'Team name or tiles range not configured' });
+        if (!teamName) {
+            res.status(500).json({ error: 'Team name not configured' });
             return;
         }
 
-        // First, let's get the sheet metadata to see what sheets exist
-        const metadataResponse = await sheets.spreadsheets.get({
-            spreadsheetId: sheetId,
-        });
-
-        // Test multiple ranges to find where the data actually is
+        // Test multiple ranges to find bingo data
         const testRanges = [
-            `'${teamName}'!${tilesRange}`,
             `'${teamName}'!A1:Z100`,
             `'${teamName}'!A1:Z50`,
-            `'${teamName}'!E1:G100`,
+            `'${teamName}'!A1:Z200`,
+            `'${teamName}'!A:C`,
             `'${teamName}'!A:E`,
-            `'${teamName}'!1:100`
+            `'${teamName}'!1:100`,
+            `'${teamName}'!1:200`
         ];
 
-        const rangeResults = {};
+        const results = {};
 
         for (const range of testRanges) {
             try {
-                const dataResponse = await sheets.spreadsheets.values.get({
+                const response = await sheets.spreadsheets.values.get({
                     spreadsheetId: sheetId,
                     range: range,
                 });
 
-                rangeResults[range] = {
-                    range: dataResponse.data.range,
-                    majorDimension: dataResponse.data.majorDimension,
-                    valueCount: dataResponse.data.values?.length || 0,
-                    hasData: dataResponse.data.values && dataResponse.data.values.length > 0 &&
-                        dataResponse.data.values.some(row => row && row.length > 0 &&
-                            row.some(cell => cell && cell.toString().trim() !== '')),
-                    firstFewRows: dataResponse.data.values?.slice(0, 3) || []
-                };
+                const rows = response.data.values;
+                if (rows && rows.length > 0) {
+                    // Look for rows that might contain bingo data
+                    const bingoRows = rows.filter((row, index) => {
+                        if (index === 0) return false; // Skip header row
+                        return row && row.length >= 3 && 
+                               row[0] && row[0].toString().trim() !== '' &&
+                               !isNaN(row[2]); // Third column should be a number
+                    });
+
+                    results[range] = {
+                        totalRows: rows.length,
+                        bingoRowsFound: bingoRows.length,
+                        sampleBingoData: bingoRows.slice(0, 5),
+                        hasBingoData: bingoRows.length > 0
+                    };
+                } else {
+                    results[range] = { totalRows: 0, bingoRowsFound: 0, hasBingoData: false };
+                }
             } catch (error) {
-                rangeResults[range] = {
-                    error: error.message
-                };
+                results[range] = { error: error.message };
             }
         }
 
         res.json({
-            message: 'Google Sheets Debug Info',
+            message: 'Bingo Data Search Results',
             timestamp: new Date().toISOString(),
             sheetId: sheetId,
             teamName: teamName,
-            tilesRange: tilesRange,
-            sheetMetadata: {
-                title: metadataResponse.data.properties?.title,
-                sheets: metadataResponse.data.sheets?.map(sheet => ({
-                    title: sheet.properties?.title,
-                    sheetId: sheet.properties?.sheetId
-                }))
-            },
-            rangeResults: rangeResults
+            results: results
         });
     } catch (error) {
-        console.error('Error in debug-sheets:', error);
-        res.status(500).json({
-            error: 'Failed to fetch sheet data',
-            details: error.message,
-            code: error.code,
-            stack: error.stack
+        console.error('Error in debug-find-data:', error);
+        res.status(500).json({ 
+            error: 'Failed to search for bingo data',
+            details: error.message
         });
     }
 } 

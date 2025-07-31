@@ -43,8 +43,8 @@
       "destination": "/api/bingo/page6.js"
     },
     {
-      "source": "/api/debug-sheets",
-      "destination": "/api/debug-sheets.js"
+      "source": "/api/debug-find-data",
+      "destination": "/api/debug-find-data.js"
     },
     {
       "source": "/(.*)",
