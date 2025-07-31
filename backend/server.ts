@@ -377,7 +377,7 @@ async function fetchBingoData(pageId: string) {
 
             // Define merge groups
             const mergeGroups = [
-                { ids: ['Barrows', 'Moons'], newId: 'Barrows and Moon' },
+                { ids: ['Barrows', 'Moons'], newId: 'Barrows + Moons' },
                 { ids: ['Mix Up Head', 'Mix Up Body', 'Mix Up Bottom'], newId: 'Mix Up' },
                 { ids: ['Jar', 'Pet'], newId: '2 Pets 1 Jar' }
             ];
