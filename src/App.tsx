@@ -93,8 +93,9 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1 className="app-header-heading">Clannington Bingo</h1>
-        <h2 className="app-header-subheading">The Sequel</h2>
+        <a href="/" className="logo-link">
+          <img src="/logo.png" alt="Clannington Bingo Logo" className="app-logo" />
+        </a>
       </header>
 
       <div className="app-content">

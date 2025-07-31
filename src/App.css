@@ -96,22 +96,21 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.app-header-heading {
-  margin: 0 0 1rem 0;
-  font-size: 2.5rem;
-  font-weight: bold;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  font-family: var(--bingo-font-outline);
-  color: var(--bingo-tile-border-primary);
+.logo-link {
+  display: inline-block;
+  text-decoration: none;
+  transition: transform 0.3s ease;
 }
 
-.app-header-subheading {
-  margin: 0 0 1rem 0;
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  font-family: var(--bingo-font-hotliner);
-  transform: rotate(-10deg);
+.logo-link:hover {
+  transform: scale(1.05);
+}
+
+.app-logo {
+  height: 80px;
+  width: auto;
+  max-width: 300px;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
 }
 
 .header-controls {
