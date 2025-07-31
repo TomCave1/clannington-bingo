@@ -31,6 +31,10 @@
       "destination": "/api/bingo-test.js"
     },
     {
+      "source": "/api/debug-env",
+      "destination": "/api/debug-env.js"
+    },
+    {
       "source": "/api/hello",
       "destination": "/api/hello.mjs"
     },
