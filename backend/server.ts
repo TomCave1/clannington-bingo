@@ -412,7 +412,7 @@ async function fetchBingoData(pageId: string) {
 
             const points: { [id: string]: number } = {
                 'Titans': 3,
-                'Barrows and Moon': 4,
+                'Barrows + Moons': 4,
                 'Huey': 3,
                 'SRA': 6,
                 'Horn': 5,

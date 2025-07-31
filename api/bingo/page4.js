@@ -96,14 +96,14 @@ export default async function handler(req, res) {
 
         // Define merge groups
         const mergeGroups = [
-            { ids: ['Barrows', 'Moons'], newId: 'Barrows and Moon' },
+            { ids: ['Barrows', 'Moons'], newId: 'Barrows + Moons' },
             { ids: ['Mix Up Head', 'Mix Up Body', 'Mix Up Bottom'], newId: 'Mix Up' },
             { ids: ['Jar', 'Pet'], newId: '2 Pets 1 Jar' }
         ];
 
         const limits = {
             'Titans': 2,
-            'Barrows and Moon': 8,
+            'Barrows + Moons': 8,
             'Huey': 2,
             'SRA': 4,
             'Horn': 1,
@@ -131,7 +131,7 @@ export default async function handler(req, res) {
 
         const points = {
             'Titans': 3,
-            'Barrows and Moon': 4,
+            'Barrows + Moons': 4,
             'Huey': 3,
             'SRA': 6,
             'Horn': 5,
