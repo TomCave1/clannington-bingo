@@ -57,7 +57,8 @@ export default async function handler(req, res) {
     try {
         const sheetId = process.env.GOOGLE_SHEET_ID;
         const teamName = process.env.BONESSA_TEAM;
-        
+        const tilesRange = process.env.TILES;
+
         if (!sheetId) {
             res.status(500).json({ error: 'Google Sheet ID not configured' });
             return;
@@ -68,15 +69,20 @@ export default async function handler(req, res) {
             return;
         }
 
-        // Test multiple ranges to find bingo data
+        if (!tilesRange) {
+            res.status(500).json({ error: 'TILES range not configured' });
+            return;
+        }
+
+        // Test variations of the TILES range to find bingo data
         const testRanges = [
-            `'${teamName}'!A1:Z100`,
-            `'${teamName}'!A1:Z50`,
-            `'${teamName}'!A1:Z200`,
-            `'${teamName}'!A:C`,
-            `'${teamName}'!A:E`,
-            `'${teamName}'!1:100`,
-            `'${teamName}'!1:200`
+            `'${teamName}'!${tilesRange}`, // Original range
+            `'${teamName}'!A1:Z100`, // Broader range to see all data
+            `'${teamName}'!A1:Z50`, // Smaller range
+            `'${teamName}'!A:C`, // Just columns A-C
+            `'${teamName}'!A:E`, // Just columns A-E
+            `'${teamName}'!1:100`, // Just rows 1-100
+            `'${teamName}'!1:200` // More rows
         ];
 
         const results = {};
@@ -93,16 +99,17 @@ export default async function handler(req, res) {
                     // Look for rows that might contain bingo data
                     const bingoRows = rows.filter((row, index) => {
                         if (index === 0) return false; // Skip header row
-                        return row && row.length >= 3 && 
-                               row[0] && row[0].toString().trim() !== '' &&
-                               !isNaN(row[2]); // Third column should be a number
+                        return row && row.length >= 3 &&
+                            row[0] && row[0].toString().trim() !== '' &&
+                            !isNaN(row[2]); // Third column should be a number
                     });
 
                     results[range] = {
                         totalRows: rows.length,
                         bingoRowsFound: bingoRows.length,
                         sampleBingoData: bingoRows.slice(0, 5),
-                        hasBingoData: bingoRows.length > 0
+                        hasBingoData: bingoRows.length > 0,
+                        firstFewRows: rows.slice(0, 3) // Show first few rows for context
                     };
                 } else {
                     results[range] = { totalRows: 0, bingoRowsFound: 0, hasBingoData: false };
@@ -117,11 +124,12 @@ export default async function handler(req, res) {
             timestamp: new Date().toISOString(),
             sheetId: sheetId,
             teamName: teamName,
+            tilesRange: tilesRange,
             results: results
         });
     } catch (error) {
         console.error('Error in debug-find-data:', error);
-        res.status(500).json({ 
+        res.status(500).json({
             error: 'Failed to search for bingo data',
             details: error.message
         });
