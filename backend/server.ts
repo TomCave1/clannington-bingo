@@ -438,10 +438,6 @@ async function fetchBingoData(pageId: string) {
                 'CG': 5,
             }
 
-            const image: { [id: string]: number } = {
-                'Titans': 3,
-            }
-
             let mergedData: { id: string; value: string; limit: number; points: number | null }[] = [];
             let skipIds = new Set();
 
