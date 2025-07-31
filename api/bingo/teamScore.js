@@ -54,77 +54,50 @@ export default async function handler(req, res) {
         return;
     }
 
+    // Add cache-busting headers
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
     try {
         const sheetId = process.env.GOOGLE_SHEET_ID;
-        const teamName = process.env.BONESSA_TEAM;
-        const tilesRange = process.env.TILES;
-
+        const range = process.env.TEAM_SCORE_RANGE || 'Sheet1!A1:Z100';
+        
         if (!sheetId) {
             res.status(500).json({ error: 'Google Sheet ID not configured' });
             return;
         }
 
-        if (!teamName) {
-            res.status(500).json({ error: 'Team name not configured' });
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: sheetId,
+            range: range,
+        });
+
+        const rows = response.data.values;
+        if (!rows || rows.length === 0) {
+            res.json({ error: 'No data found in the specified range' });
             return;
         }
 
-        if (!tilesRange) {
-            res.status(500).json({ error: 'TILES range not configured' });
-            return;
-        }
-
-        // Test only the configured TILES range
-        const testRanges = [
-            `'${teamName}'!${tilesRange}` // Original range E35:G64
-        ];
-
-        const results = {};
-
-        for (const range of testRanges) {
-            try {
-                const response = await sheets.spreadsheets.values.get({
-                    spreadsheetId: sheetId,
-                    range: range,
-                });
-
-                const rows = response.data.values;
-                if (rows && rows.length > 0) {
-                    // Look for rows that might contain bingo data
-                    const bingoRows = rows.filter((row, index) => {
-                        if (index === 0) return false; // Skip header row
-                        return row && row.length >= 3 &&
-                            row[0] && row[0].toString().trim() !== '' &&
-                            !isNaN(row[2]); // Third column should be a number
-                    });
-
-                    results[range] = {
-                        totalRows: rows.length,
-                        bingoRowsFound: bingoRows.length,
-                        sampleBingoData: bingoRows.slice(0, 5),
-                        hasBingoData: bingoRows.length > 0,
-                        firstFewRows: rows.slice(0, 3) // Show first few rows for context
-                    };
-                } else {
-                    results[range] = { totalRows: 0, bingoRowsFound: 0, hasBingoData: false };
-                }
-            } catch (error) {
-                results[range] = { error: error.message };
-            }
-        }
+        const headers = rows[0];
+        const data = rows.slice(1).map(row => {
+            const item = {};
+            headers.forEach((header, index) => {
+                item[header] = row[index] || '';
+            });
+            return item;
+        });
 
         res.json({
-            message: 'Bingo Data Search Results',
-            timestamp: new Date().toISOString(),
-            sheetId: sheetId,
-            teamName: teamName,
-            tilesRange: tilesRange,
-            results: results
+            data,
+            headers,
+            title: 'Team Score',
+            pageId: 'teamScore'
         });
     } catch (error) {
-        console.error('Error in debug-find-data:', error);
-        res.status(500).json({
-            error: 'Failed to search for bingo data',
+        console.error('Error in /api/bingo/teamScore:', error);
+        res.status(500).json({ 
+            error: 'Failed to fetch team score data',
             details: error.message
         });
     }
