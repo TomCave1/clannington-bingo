@@ -23,6 +23,30 @@
       "destination": "/api/bingo/page1.js"
     },
     {
+      "source": "/api/bingo/page2",
+      "destination": "/api/bingo/page2.js"
+    },
+    {
+      "source": "/api/bingo/page3",
+      "destination": "/api/bingo/page3.js"
+    },
+    {
+      "source": "/api/bingo/page4",
+      "destination": "/api/bingo/page4.js"
+    },
+    {
+      "source": "/api/bingo/page5",
+      "destination": "/api/bingo/page5.js"
+    },
+    {
+      "source": "/api/bingo/page6",
+      "destination": "/api/bingo/page6.js"
+    },
+    {
+      "source": "/api/bingo/teamScore",
+      "destination": "/api/bingo/teamScore.js"
+    },
+    {
       "source": "/api/bingo/:pageId",
       "destination": "/api/bingo/[pageId].js"
     },
