@@ -3,7 +3,7 @@ const BINGO_SHEETS = {
     'page1': {
         sheetId: process.env.GOOGLE_SHEET_ID,
         range: process.env.SHEET_RANGE_PAGE1 || 'Sheet1!A1:Z100',
-        title: 'Current Standings'
+        title: 'Dashboard'
     },
     'page2': {
         sheetId: process.env.GOOGLE_SHEET_ID,

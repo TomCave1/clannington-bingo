@@ -307,7 +307,7 @@ const BINGO_SHEETS = {
     'page1': {
         sheetId: process.env.GOOGLE_SHEET_ID,
         range: process.env.SHEET_RANGE_PAGE1 || 'Sheet1!A1:Z100',
-        title: 'Current Standings'
+        title: 'Dashboard'
     },
     'page2': {
         sheetId: process.env.GOOGLE_SHEET_ID,
@@ -399,7 +399,7 @@ async function fetchBingoData(pageId: string) {
                 'Revs': 3,
                 'F2P': 2,
                 'Voidwaker': 3,
-                "TD's": 2,
+                "TDs": 2,
                 'Parsec': 2,
                 'Zulrah': 4,
                 'Nex': 1,
@@ -427,7 +427,7 @@ async function fetchBingoData(pageId: string) {
                 'Revs': 4,
                 'F2P': 3,
                 'Voidwaker': 5,
-                "TD's": 3,
+                "TDs": 3,
                 'Parsec': 4,
                 'Zulrah': 4,
                 'Nex': 5,

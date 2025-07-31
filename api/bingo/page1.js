@@ -92,7 +92,7 @@ export default async function handler(req, res) {
         res.json({
             data,
             headers,
-            title: 'Current Standings',
+            title: 'Dashboard',
             pageId
         });
     } catch (error) {
