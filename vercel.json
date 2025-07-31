@@ -43,32 +43,8 @@
       "destination": "/api/bingo/page6.js"
     },
     {
-      "source": "/api/bingo/teamScore",
-      "destination": "/api/bingo/teamScore.js"
-    },
-    {
-      "source": "/api/bingo/:pageId",
-      "destination": "/api/bingo/[pageId].js"
-    },
-    {
-      "source": "/api/bingo-test",
-      "destination": "/api/bingo-test.js"
-    },
-    {
-      "source": "/api/debug-env",
-      "destination": "/api/debug-env.js"
-    },
-    {
       "source": "/api/debug-sheets",
       "destination": "/api/debug-sheets.js"
-    },
-    {
-      "source": "/api/hello",
-      "destination": "/api/hello.mjs"
-    },
-    {
-      "source": "/api/test",
-      "destination": "/api/test.mjs"
     },
     {
       "source": "/(.*)",

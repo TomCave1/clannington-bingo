@@ -88,18 +88,111 @@ export default async function handler(req, res) {
             return;
         }
 
-        const headers = rows[0];
-        const data = rows.slice(1).map(row => {
-            const item = {};
-            headers.forEach((header, index) => {
-                item[header] = row[index] || '';
-            });
-            return item;
-        });
+        // Process the data similar to the backend server
+        let rawData = rows.slice(1).map(row => ({
+            id: row[0] || '',
+            value: Number(row[2]) || 0
+        }));
+
+        // Define merge groups
+        const mergeGroups = [
+            { ids: ['Barrows', 'Moons'], newId: 'Barrows and Moon' },
+            { ids: ['Mix Up Head', 'Mix Up Body', 'Mix Up Bottom'], newId: 'Mix Up' },
+            { ids: ['Jar', 'Pet'], newId: '2 Pets 1 Jar' }
+        ];
+
+        const limits = {
+            'Titans': 2,
+            'Barrows and Moon': 8,
+            'Huey': 2,
+            'SRA': 4,
+            'Horn': 1,
+            'Muspah': 5,
+            'Nightmare': 1,
+            'Visage': 1,
+            '2 Pets 1 Jar': 3,
+            'Nox Hally': 3,
+            'Godsword': 4,
+            'LotR': 4,
+            'Mega Rare': 1,
+            'Revs': 3,
+            'F2P': 2,
+            'Voidwaker': 3,
+            'TD\'s': 2,
+            'Parsec': 2,
+            'Zulrah': 4,
+            'Nex': 1,
+            'Mix Up': 3,
+            'Enrage': 1,
+            'Dust': 1,
+            'Boppers': 5,
+            'CG': 7,
+        };
+
+        const points = {
+            'Titans': 3,
+            'Barrows and Moon': 4,
+            'Huey': 3,
+            'SRA': 6,
+            'Horn': 5,
+            'Muspah': 4,
+            'Nightmare': 5,
+            'Visage': 4,
+            '2 Pets 1 Jar': 5,
+            'Nox Hally': 3,
+            'Godsword': 4,
+            'LotR': 4,
+            'Mega Rare': 6,
+            'Revs': 4,
+            'F2P': 3,
+            'Voidwaker': 5,
+            'TD\'s': 3,
+            'Parsec': 4,
+            'Zulrah': 4,
+            'Nex': 5,
+            'Mix Up': 5,
+            'Enrage': 5,
+            'Dust': 4,
+            'Boppers': 2,
+            'CG': 5,
+        };
+
+        let mergedData = [];
+        let skipIds = new Set();
+
+        for (let i = 0; i < rawData.length; i++) {
+            const item = rawData[i];
+            if (skipIds.has(item.id)) continue;
+
+            // Check if this item should be merged
+            const mergeGroup = mergeGroups.find(group => group.ids.includes(item.id));
+            if (mergeGroup) {
+                // Find all items in this merge group
+                const groupItems = rawData.filter(d => mergeGroup.ids.includes(d.id));
+                const totalValue = groupItems.reduce((sum, d) => sum + d.value, 0);
+
+                mergedData.push({
+                    id: mergeGroup.newId,
+                    value: totalValue,
+                    limit: limits[mergeGroup.newId] || 1,
+                    points: points[mergeGroup.newId] || null
+                });
+
+                // Mark all items in this group as processed
+                groupItems.forEach(d => skipIds.add(d.id));
+            } else {
+                // Regular item
+                mergedData.push({
+                    id: item.id,
+                    value: item.value,
+                    limit: limits[item.id] || 1,
+                    points: points[item.id] || null
+                });
+            }
+        }
 
         res.json({
-            data,
-            headers,
+            data: mergedData,
             title: `The eJackulators`,
             pageId
         });

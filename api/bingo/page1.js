@@ -63,7 +63,7 @@ export default async function handler(req, res) {
         const pageId = 'page1';
         const sheetId = process.env.GOOGLE_SHEET_ID;
         const range = process.env.SHEET_RANGE_PAGE1 || 'Sheet1!A1:Z100';
-        
+
         if (!sheetId) {
             res.status(500).json({ error: 'Google Sheet ID not configured' });
             return;
@@ -97,10 +97,9 @@ export default async function handler(req, res) {
         });
     } catch (error) {
         console.error('Error in /api/bingo/page1:', error);
-        res.status(500).json({ 
+        res.status(500).json({
             error: 'Failed to fetch bingo data',
-            details: error.message,
-            code: error.code
+            details: error.message
         });
     }
 } 
