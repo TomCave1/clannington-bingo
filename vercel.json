@@ -15,8 +15,20 @@
   ],
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
+      "source": "/api/pages",
+      "destination": "/api/pages.mjs"
+    },
+    {
+      "source": "/api/bingo/(.*)",
+      "destination": "/api/bingo/[pageId].js"
+    },
+    {
+      "source": "/api/hello",
+      "destination": "/api/hello.mjs"
+    },
+    {
+      "source": "/api/test",
+      "destination": "/api/test.mjs"
     },
     {
       "source": "/(.*)",
