@@ -22,7 +22,7 @@ function App() {
     try {
       setLoading(true);
       const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:4000' : '';
-      const response = await fetch(`${apiBase}/api/pages`, {
+      const response = await fetch(`${apiBase}/api/pages.js`, {
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
