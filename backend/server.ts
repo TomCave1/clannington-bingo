@@ -384,7 +384,7 @@ async function fetchBingoData(pageId: string) {
 
             const limits: { [id: string]: number } = {
                 'Titans': 2,
-                'Barrows and Moon': 8,
+                'Barrows + Moons': 8,
                 'Huey': 2,
                 'SRA': 4,
                 'Horn': 1,
