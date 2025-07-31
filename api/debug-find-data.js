@@ -76,13 +76,14 @@ export default async function handler(req, res) {
 
         // Test variations of the TILES range to find bingo data
         const testRanges = [
-            `'${teamName}'!${tilesRange}`, // Original range
-            `'${teamName}'!A1:Z100`, // Broader range to see all data
-            `'${teamName}'!A1:Z50`, // Smaller range
-            `'${teamName}'!A:C`, // Just columns A-C
-            `'${teamName}'!A:E`, // Just columns A-E
-            `'${teamName}'!1:100`, // Just rows 1-100
-            `'${teamName}'!1:200` // More rows
+            `'${teamName}'!${tilesRange}`, // Original range E35:G64
+            `'${teamName}'!E1:G100`, // Same columns, starting from row 1
+            `'${teamName}'!E1:G200`, // Same columns, more rows
+            `'${teamName}'!E30:G70`, // Similar range, slightly different rows
+            `'${teamName}'!E25:G75`, // Similar range, different rows
+            `'${teamName}'!E40:G80`, // Similar range, different rows
+            `'${teamName}'!D35:F64`, // Adjacent columns
+            `'${teamName}'!F35:H64`  // Adjacent columns
         ];
 
         const results = {};
