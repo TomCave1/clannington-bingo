@@ -39,7 +39,7 @@
 
 
 .logo {
-  height: 6em;
+  height: 7em;
   padding: 1.5em;
   will-change: filter;
   transition: filter 300ms;
@@ -107,9 +107,9 @@
 }
 
 .app-logo {
-  height: 80px;
+  height: 120px;
   width: auto;
-  max-width: 300px;
+  max-width: 400px;
   filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
 }
 
@@ -470,6 +470,10 @@
 
 /* Responsive scoreboard */
 @media (max-width: 768px) {
+
+  .app-logo {
+    height: 80px;
+  }
 
   .scoreboard-table {
     margin: 1rem 0;
