@@ -118,90 +118,90 @@ export default async function handler(req, res) {
             'Revs': 3,
             'F2P': 2,
             'Voidwaker': 3,
-            'TD\'s': 2,
+            `TD\'s`: 2,
             'Parsec': 2,
-            'Zulrah': 4,
-            'Nex': 1,
-            'Mix Up': 3,
-            'Enrage': 1,
-            'Dust': 1,
-            'Boppers': 5,
-            'CG': 7,
+                'Zulrah': 4,
+                    'Nex': 1,
+                        'Mix Up': 3,
+                            'Enrage': 1,
+                                'Dust': 1,
+                                    'Boppers': 5,
+                                        'CG': 7,
         };
 
-        const points = {
-            'Titans': 3,
-            'Barrows + Moons': 4,
-            'Huey': 3,
-            'SRA': 6,
-            'Horn': 5,
-            'Muspah': 4,
-            'Nightmare': 5,
-            'Visage': 4,
-            '2 Pets 1 Jar': 5,
-            'Nox Hally': 3,
-            'Any Godsword': 4,
-            'LotR': 4,
-            'Mega Rare': 6,
-            'Revs': 4,
-            'F2P': 3,
-            'Voidwaker': 5,
-            'TD\'s': 3,
-            'Parsec': 4,
+    const points = {
+        'Titans': 3,
+        'Barrows + Moons': 4,
+        'Huey': 3,
+        'SRA': 6,
+        'Horn': 5,
+        'Muspah': 4,
+        'Nightmare': 5,
+        'Visage': 4,
+        '2 Pets 1 Jar': 5,
+        'Nox Hally': 3,
+        'Any Godsword': 4,
+        'LotR': 4,
+        'Mega Rare': 6,
+        'Revs': 4,
+        'F2P': 3,
+        'Voidwaker': 5,
+            `TD\'s`: 3,
+        'Parsec': 4,
             'Zulrah': 4,
-            'Nex': 5,
-            'Mix Up': 5,
-            'Enrage': 5,
-            'Dust': 4,
-            'Boppers': 2,
-            'CG': 5,
+                'Nex': 5,
+                    'Mix Up': 5,
+                        'Enrage': 5,
+                            'Dust': 4,
+                                'Boppers': 2,
+                                    'CG': 5,
         };
 
-        let mergedData = [];
-        let skipIds = new Set();
+let mergedData = [];
+let skipIds = new Set();
 
-        for (let i = 0; i < rawData.length; i++) {
-            const item = rawData[i];
-            if (skipIds.has(item.id)) continue;
+for (let i = 0; i < rawData.length; i++) {
+    const item = rawData[i];
+    if (skipIds.has(item.id)) continue;
 
-            // Check if this item should be merged
-            const mergeGroup = mergeGroups.find(group => group.ids.includes(item.id));
-            if (mergeGroup) {
-                // Find all items in this merge group
-                const groupItems = rawData.filter(d => mergeGroup.ids.includes(d.id));
-                const totalValue = groupItems.reduce((sum, d) => sum + d.value, 0);
+    // Check if this item should be merged
+    const mergeGroup = mergeGroups.find(group => group.ids.includes(item.id));
+    if (mergeGroup) {
+        // Find all items in this merge group
+        const groupItems = rawData.filter(d => mergeGroup.ids.includes(d.id));
+        const totalValue = groupItems.reduce((sum, d) => sum + d.value, 0);
 
-                mergedData.push({
-                    id: mergeGroup.newId,
-                    value: totalValue,
-                    limit: limits[mergeGroup.newId] || 1,
-                    points: points[mergeGroup.newId] || null
-                });
-
-                // Mark all items in this group as processed
-                groupItems.forEach(d => skipIds.add(d.id));
-            } else {
-                // Regular item
-                mergedData.push({
-                    id: item.id,
-                    value: item.value,
-                    limit: limits[item.id] || 1,
-                    points: points[item.id] || null
-                });
-            }
-        }
-
-        res.json({
-            data: mergedData,
-            title: `Kris' Kanker Kunts`,
-            pageId
+        mergedData.push({
+            id: mergeGroup.newId,
+            value: totalValue,
+            limit: limits[mergeGroup.newId] || 1,
+            points: points[mergeGroup.newId] || null
         });
-    } catch (error) {
-        console.error('Error in /api/bingo/page6:', error);
-        res.status(500).json({
-            error: 'Failed to fetch bingo data',
-            details: error.message,
-            code: error.code
+
+        // Mark all items in this group as processed
+        groupItems.forEach(d => skipIds.add(d.id));
+    } else {
+        // Regular item
+        mergedData.push({
+            id: item.id,
+            value: item.value,
+            limit: limits[item.id] || 1,
+            points: points[item.id] || null
         });
     }
+}
+
+res.json({
+    data: mergedData,
+    title: `Kris' Kanker Kunts`,
+    pageId
+});
+    } catch (error) {
+    console.error('Error in /api/bingo/page6:', error);
+    res.status(500).json({
+        error: 'Failed to fetch bingo data',
+        details: error.message,
+        code: error.code
+    });
+}
 } 
