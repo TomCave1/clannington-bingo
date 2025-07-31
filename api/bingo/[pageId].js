@@ -97,126 +97,17 @@ async function fetchBingoData(pageId) {
 
         const rows = response.data.values;
         if (!rows || rows.length === 0) {
-            return { error: 'No data found in the spreadsheet' };
+            return { error: 'No data found in the specified range' };
         }
 
-        // Assuming first row contains headers
-        let headers = rows[0];
-        let data;
-
-        if (pageId !== 'page1') {
-            let rawData = rows.slice(1).map(row => ({
-                id: row[0] || '',
-                value: Number(row[2]) || 0
-            }));
-
-            // Define merge groups
-            const mergeGroups = [
-                { ids: ['Barrows', 'Moons'], newId: 'Barrows and Moon' },
-                { ids: ['Mix Up Head', 'Mix Up Body', 'Mix Up Bottom'], newId: 'Mix Up' },
-                { ids: ['Jar', 'Pet'], newId: '2 Pets 1 Jar' }
-            ];
-
-            const limits = {
-                'Titans': 2,
-                'Barrows and Moon': 8,
-                'Huey': 2,
-                'SRA': 4,
-                'Horn': 1,
-                'Muspah': 5,
-                'Nightmare': 1,
-                'Visage': 1,
-                '2 Pets 1 Jar': 3,
-                'Nox Hally': 3,
-                'Godsword': 4,
-                'LotR': 4,
-                'Mega Rare': 1,
-                'Revs': 3,
-                'F2P': 2,
-                'Voidwaker': 3,
-                'TD\'s': 2,
-                'Parsec': 2,
-                'Zulrah': 4,
-                'Nex': 1,
-                'Mix Up': 3,
-                'Enrage': 1,
-                'Dust': 1,
-                'Boppers': 5,
-                'CG': 7,
-            };
-
-            const points = {
-                'Titans': 3,
-                'Barrows and Moon': 4,
-                'Huey': 3,
-                'SRA': 6,
-                'Horn': 5,
-                'Muspah': 4,
-                'Nightmare': 5,
-                'Visage': 4,
-                '2 Pets 1 Jar': 5,
-                'Nox Hally': 3,
-                'Godsword': 4,
-                'LotR': 4,
-                'Mega Rare': 6,
-                'Revs': 4,
-                'F2P': 3,
-                'Voidwaker': 5,
-                'TD\'s': 3,
-                'Parsec': 4,
-                'Zulrah': 4,
-                'Nex': 5,
-                'Mix Up': 5,
-                'Enrage': 5,
-                'Dust': 4,
-                'Boppers': 2,
-                'CG': 5,
-            }
-
-            let mergedData = [];
-            let skipIds = new Set();
-
-            for (let i = 0; i < rawData.length; i++) {
-                const item = rawData[i];
-                if (skipIds.has(item.id)) continue;
-
-                // Check if this item starts a merge group
-                const group = mergeGroups.find(g => g.ids.includes(item.id) && g.ids.every(id => rawData.some(r => r.id === id)));
-                if (group && group.ids[0] === item.id) {
-                    // Merge values
-                    const sum = group.ids.reduce((acc, id) => {
-                        skipIds.add(id);
-                        const found = rawData.find(r => r.id === id);
-                        return acc + (found ? found.value : 0);
-                    }, 0);
-                    mergedData.push({
-                        id: group.newId,
-                        value: sum.toString(),
-                        limit: limits[group.newId] ?? null,
-                        points: points[group.newId] ?? 0
-                    });
-                } else if (!skipIds.has(item.id)) {
-                    const outputId = item.id === 'Twinflame Staff' ? 'Titans' : item.id;
-                    mergedData.push({
-                        id: outputId,
-                        value: item.value.toString(),
-                        limit: limits[outputId] ?? null,
-                        points: points[outputId] ?? 0
-                    });
-                }
-            }
-
-            data = mergedData;
-            headers = ['id', 'value'];
-        } else {
-            data = rows.slice(1).map(row => {
-                const item = {};
-                headers.forEach((header, index) => {
-                    item[header] = row[index] || '';
-                });
-                return item;
+        const headers = rows[0];
+        let data = rows.slice(1).map(row => {
+            const item = {};
+            headers.forEach((header, index) => {
+                item[header] = row[index] || '';
             });
-        }
+            return item;
+        });
 
         return {
             data,

@@ -39,7 +39,7 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
         try {
             setLoading(true);
             setError(null);
-            const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:4000' : '';
+            const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:4000' : window.location.origin;
             const response = await fetch(`${apiBase}/api/bingo/${pageId}`, {
                 headers: {
                     'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -65,7 +65,7 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
         try {
             setLoading(true);
             setError(null);
-            const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:4000' : '';
+            const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:4000' : window.location.origin;
             const response = await fetch(`${apiBase}/api/bingo/teamScore`, {
                 headers: {
                     'Cache-Control': 'no-cache, no-store, must-revalidate',
