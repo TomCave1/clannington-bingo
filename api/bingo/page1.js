@@ -61,7 +61,7 @@ export default async function handler(req, res) {
 
     try {
         const pageId = 'page1';
-        const sheetId = process.env.GOOGLE_SHEET_ID;
+        const sheetId = process.env.GOOGLE_SHEET_ID_PAGE1 || process.env.GOOGLE_SHEET_ID;
         const range = process.env.SHEET_RANGE_PAGE1 || 'Sheet1!A1:Z100';
 
         if (!sheetId) {

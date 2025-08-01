@@ -66,22 +66,35 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
             setLoading(true);
             setError(null);
             const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:4000' : window.location.origin;
-            const response = await fetch(`${apiBase}/api/bingo/teamScore`, {
+            const url = `${apiBase}/api/bingo/teamScore`;
+            console.log('Fetching team score data from:', url);
+            const response = await fetch(url, {
                 headers: {
                     'Cache-Control': 'no-cache, no-store, must-revalidate',
                     'Pragma': 'no-cache',
                     'Expires': '0'
                 }
             });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
             const data = await response.json();
-            setTeamScoreData(data);
+
+            console.log('Team score data:', data);
+
             if (data.error) {
                 setError(data.error);
+                setTeamScoreData(null);
             } else {
                 setTeamScoreData(data);
             }
         } catch (err) {
-            setError('Failed to fetch bingo data. Make sure the backend server is running.');
+            console.error('Error fetching team score data:', err);
+            const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+            setError(`Failed to fetch team score data: ${errorMessage}`);
+            setTeamScoreData(null);
         } finally {
             setLoading(false);
         }
@@ -163,14 +176,14 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
                             <tbody>
                                 {teamScoreData.data
                                     .sort((a, b) => {
-                                        const pointsA = Number(Object.values(a)[2] || 0);
-                                        const pointsB = Number(Object.values(b)[2] || 0);
+                                        const pointsA = Number(a.score || 0);
+                                        const pointsB = Number(b.score || 0);
                                         return pointsB - pointsA; // Sort descending (highest first)
                                     })
                                     .map((item, index) => (
-                                        <tr key={`player-${index}`}>
-                                            <td>{Object.values(item)[0]}</td>
-                                            <td>{Object.values(item)[1]}</td>
+                                        <tr key={`team-${index}`}>
+                                            <td>{item.team}</td>
+                                            <td>{item.score}</td>
                                         </tr>
                                     ))}
                             </tbody>
@@ -180,7 +193,7 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
                                 <tr>
                                     <th>Player</th>
                                     <th>Team</th>
-                                    <th>Points</th>
+                                    <th>Drops</th>
                                 </tr>
                             </thead>
                             <tbody>

@@ -60,9 +60,18 @@ export default async function handler(req, res) {
     res.setHeader('Expires', '0');
 
     try {
-        const sheetId = process.env.GOOGLE_SHEET_ID;
-        const range = process.env.TEAM_SCORE_RANGE || 'Sheet1!A1:Z100';
-        
+        const sheetId = process.env.GOOGLE_SHEET_ID_TEAM_SCORE || process.env.GOOGLE_SHEET_ID_PAGE1 || process.env.GOOGLE_SHEET_ID;
+        const range = process.env.TEAM_SCORE_RANGE || 'Home!K7:L12';
+
+        console.log('=== TEAM SCORE API DEBUG ===');
+        console.log('Sheet ID:', sheetId);
+        console.log('Range:', range);
+        console.log('TEAM_SCORE_RANGE env var:', process.env.TEAM_SCORE_RANGE);
+        console.log('GOOGLE_SHEET_ID_TEAM_SCORE:', process.env.GOOGLE_SHEET_ID_TEAM_SCORE);
+        console.log('GOOGLE_SHEET_ID_PAGE1:', process.env.GOOGLE_SHEET_ID_PAGE1);
+        console.log('GOOGLE_SHEET_ID:', process.env.GOOGLE_SHEET_ID);
+        console.log('============================');
+
         if (!sheetId) {
             res.status(500).json({ error: 'Google Sheet ID not configured' });
             return;
@@ -79,14 +88,30 @@ export default async function handler(req, res) {
             return;
         }
 
+        console.log('Team Score API - Raw data from Google Sheets:');
+        console.log('Total rows received:', rows.length);
+        console.log('Headers (row 0):', rows[0]);
+        console.log('Data rows (1 onwards):', rows.slice(1, 4));
+        console.log('Number of data rows (after slice):', rows.slice(1).length);
+
         const headers = rows[0];
+
+        // Check if we have the right number of columns for team scores
+        console.log('Expected columns for team scores: 2');
+        console.log('Actual columns received:', headers.length);
+        console.log('Column headers:', headers);
+
+        // Always convert to team score format - just take first two columns
         const data = rows.slice(1).map(row => {
-            const item = {};
-            headers.forEach((header, index) => {
-                item[header] = row[index] || '';
-            });
-            return item;
+            const teamName = row[0] || '';
+            const teamScore = row[1] || '0';
+            return {
+                team: teamName,
+                score: teamScore
+            };
         });
+
+        console.log('Processed team score data:', data);
 
         res.json({
             data,
@@ -96,7 +121,7 @@ export default async function handler(req, res) {
         });
     } catch (error) {
         console.error('Error in /api/bingo/teamScore:', error);
-        res.status(500).json({ 
+        res.status(500).json({
             error: 'Failed to fetch team score data',
             details: error.message
         });

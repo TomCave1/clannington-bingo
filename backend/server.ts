@@ -369,6 +369,54 @@ async function fetchBingoData(pageId: string) {
         let headers = rows[0];
         let data;
 
+        // Special handling for teamScore
+        if (pageId === 'teamScore') {
+            console.log('Processing teamScore data with special logic');
+
+            // Define team mappings
+            const teamMappings = [
+                { name: "Bonessa's Billionaire Club", sheet: "BBC", cell: "AH2" },
+                { name: "Kris' Kanker Kunts", sheet: "Kris' KK", cell: "AH2" },
+                { name: "Subo's Spaffers", sheet: "SS", cell: "AH2" },
+                { name: "Greenboots Goon Squad", sheet: "GGS", cell: "AH2" },
+                { name: "The eJackulators", sheet: "EJs", cell: "AH2" }
+            ];
+
+            // Fetch scores from each team's sheet
+            const teamScores: { team: string; score: string }[] = [];
+
+            for (const team of teamMappings) {
+                try {
+                    console.log(`Fetching score for ${team.name} from ${team.sheet}!${team.cell}`);
+                    const teamResponse = await sheets.spreadsheets.values.get({
+                        spreadsheetId: config.sheetId,
+                        range: `${team.sheet}!${team.cell}`,
+                    });
+
+                    const score = teamResponse.data.values?.[0]?.[0] || '0';
+                    console.log(`Score for ${team.name}: ${score}`);
+
+                    teamScores.push({
+                        team: team.name,
+                        score: score
+                    });
+                } catch (error) {
+                    console.error(`Error fetching score for ${team.name}:`, error);
+                    teamScores.push({
+                        team: team.name,
+                        score: '0'
+                    });
+                }
+            }
+
+            return {
+                data: teamScores,
+                headers: ['team', 'score'],
+                title: 'Team Score',
+                pageId: 'teamScore'
+            };
+        }
+
         if (pageId !== 'page1') {
             let rawData = rows.slice(1).map(row => ({
                 id: row[0] || '',
