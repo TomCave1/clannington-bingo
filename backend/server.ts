@@ -371,6 +371,10 @@ async function fetchBingoData(pageId: string) {
 
         // Special handling for teamScore
         if (pageId === 'teamScore') {
+            console.log('=== TEAM SCORE DEBUG ===');
+            console.log('Environment:', process.env.NODE_ENV);
+            console.log('Sheet ID:', config.sheetId);
+            console.log('Range:', config.range);
             console.log('Processing teamScore data with special logic');
 
             // Define team mappings
@@ -388,12 +392,14 @@ async function fetchBingoData(pageId: string) {
             for (const team of teamMappings) {
                 try {
                     console.log(`Fetching score for ${team.name} from ${team.sheet}!${team.cell}`);
+                    console.log(`Using sheet ID: ${config.sheetId}`);
                     const teamResponse = await sheets.spreadsheets.values.get({
                         spreadsheetId: config.sheetId,
                         range: `${team.sheet}!${team.cell}`,
                     });
 
                     const score = teamResponse.data.values?.[0]?.[0] || '0';
+                    console.log(`Raw response for ${team.name}:`, teamResponse.data.values);
                     console.log(`Score for ${team.name}: ${score}`);
 
                     teamScores.push({
