@@ -139,8 +139,7 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
         return (
             <div className="bingo-page">
                 <div className="no-data">
-                    <h2>No Bingo Data Available</h2>
-                    <p>Please check your Google Sheets configuration for {title}.</p>
+                    <h2>Loading Bingo Data</h2>
                 </div>
             </div>
         );
@@ -150,8 +149,7 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
         return (
             <div className="bingo-page">
                 <div className="no-data">
-                    <h2>No Team Score Data Available</h2>
-                    <p>Please check your Google Sheets configuration for {title}.</p>
+                    <h2>Loading Team Score Data</h2>
                 </div>
             </div>
         );
@@ -170,8 +168,8 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
                             <thead>
                                 <tr>
                                     <th>Team</th>
-                                    <th>Points</th>
                                     <th>Tiles</th>
+                                    <th>Points</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -184,8 +182,8 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
                                     .map((item, index) => (
                                         <tr key={`team-${index}`}>
                                             <td>{item.team}</td>
-                                            <td>{item.score}</td>
                                             <td>{item.tilesCompleted}</td>
+                                            <td>{item.score}</td>
                                         </tr>
                                     ))}
                             </tbody>

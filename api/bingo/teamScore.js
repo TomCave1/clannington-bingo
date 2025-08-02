@@ -127,7 +127,7 @@ export default async function handler(req, res) {
 
         res.json({
             data: teamScores,
-            headers: ['team', 'score', 'tilesCompleted'],
+            headers: ['team', 'tilesCompleted', 'score'],
             title: 'Team Score',
             pageId: 'teamScore'
         });
