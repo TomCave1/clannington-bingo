@@ -61,61 +61,60 @@ export default async function handler(req, res) {
 
     try {
         const sheetId = process.env.GOOGLE_SHEET_ID_TEAM_SCORE || process.env.GOOGLE_SHEET_ID_PAGE1 || process.env.GOOGLE_SHEET_ID;
-        const range = process.env.TEAM_SCORE_RANGE || 'Home!K7:L12';
 
         console.log('=== TEAM SCORE API DEBUG ===');
+        console.log('Environment:', process.env.NODE_ENV);
         console.log('Sheet ID:', sheetId);
-        console.log('Range:', range);
-        console.log('TEAM_SCORE_RANGE env var:', process.env.TEAM_SCORE_RANGE);
-        console.log('GOOGLE_SHEET_ID_TEAM_SCORE:', process.env.GOOGLE_SHEET_ID_TEAM_SCORE);
-        console.log('GOOGLE_SHEET_ID_PAGE1:', process.env.GOOGLE_SHEET_ID_PAGE1);
-        console.log('GOOGLE_SHEET_ID:', process.env.GOOGLE_SHEET_ID);
-        console.log('============================');
+        console.log('Processing teamScore data with special logic');
 
         if (!sheetId) {
             res.status(500).json({ error: 'Google Sheet ID not configured' });
             return;
         }
 
-        const response = await sheets.spreadsheets.values.get({
-            spreadsheetId: sheetId,
-            range: range,
-        });
+        // Define team mappings
+        const teamMappings = [
+            { name: "Bonessa's Billionaire Club", sheet: "BBC", cell: "AH2" },
+            { name: "Kris' Kanker Kunts", sheet: "Kris' KK", cell: "AH2" },
+            { name: "Subo's Spaffers", sheet: "SS", cell: "AH2" },
+            { name: "Greenboots Goon Squad", sheet: "GGS", cell: "AH2" },
+            { name: "The eJackulators", sheet: "EJs", cell: "AH2" }
+        ];
 
-        const rows = response.data.values;
-        if (!rows || rows.length === 0) {
-            res.json({ error: 'No data found in the specified range' });
-            return;
+        // Fetch scores from each team's sheet
+        const teamScores = [];
+
+        for (const team of teamMappings) {
+            try {
+                console.log(`Fetching score for ${team.name} from ${team.sheet}!${team.cell}`);
+                console.log(`Using sheet ID: ${sheetId}`);
+                const teamResponse = await sheets.spreadsheets.values.get({
+                    spreadsheetId: sheetId,
+                    range: `${team.sheet}!${team.cell}`,
+                });
+
+                const score = teamResponse.data.values?.[0]?.[0] || '0';
+                console.log(`Raw response for ${team.name}:`, teamResponse.data.values);
+                console.log(`Score for ${team.name}: ${score}`);
+
+                teamScores.push({
+                    team: team.name,
+                    score: score
+                });
+            } catch (error) {
+                console.error(`Error fetching score for ${team.name}:`, error);
+                teamScores.push({
+                    team: team.name,
+                    score: '0'
+                });
+            }
         }
 
-        console.log('Team Score API - Raw data from Google Sheets:');
-        console.log('Total rows received:', rows.length);
-        console.log('Headers (row 0):', rows[0]);
-        console.log('Data rows (1 onwards):', rows.slice(1, 4));
-        console.log('Number of data rows (after slice):', rows.slice(1).length);
-
-        const headers = rows[0];
-
-        // Check if we have the right number of columns for team scores
-        console.log('Expected columns for team scores: 2');
-        console.log('Actual columns received:', headers.length);
-        console.log('Column headers:', headers);
-
-        // Always convert to team score format - just take first two columns
-        const data = rows.slice(1).map(row => {
-            const teamName = row[0] || '';
-            const teamScore = row[1] || '0';
-            return {
-                team: teamName,
-                score: teamScore
-            };
-        });
-
-        console.log('Processed team score data:', data);
+        console.log('Final team scores:', teamScores);
 
         res.json({
-            data,
-            headers,
+            data: teamScores,
+            headers: ['team', 'score'],
             title: 'Team Score',
             pageId: 'teamScore'
         });

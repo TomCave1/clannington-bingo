@@ -43,6 +43,10 @@
       "destination": "/api/bingo/page6.js"
     },
     {
+      "source": "/api/bingo/teamScore",
+      "destination": "/api/bingo/teamScore.js"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
