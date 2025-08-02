@@ -306,10 +306,10 @@
 
 .bingo-item.complete {
   box-shadow: 0 0 0.05vw 0.15vw #fff,
-    0 0 0.4vw 0.2vw #4CAF50,
+    0 0 0.4vw 0.2vw #45d549,
     0 0 0.5vw 0.4vw var(--bingo-tile-border-success),
     inset 0 0 1vw 0.1vw var(--bingo-tile-border-success),
-    inset 0 0 0.4vw 0.2vw #4CAF50,
+    inset 0 0 0.4vw 0.2vw #45d549,
     inset 0 0 0.5vw 0.2vw #fff;
 }
 
@@ -328,14 +328,15 @@
 
 .bingo-item.complete .item-text {
   text-shadow: 0 0 2px #fff,
-    0 0 10px #4CAF50,
+    0 0 10px #45d549,
     0 0 18px var(--bingo-tile-border-success),
     0 1px 0 #fff;
 }
 
 .item-value {
   font-family: var(--bingo-font-hotliner);
-  font-size: 1.2rem;
+  font-size: 1.6rem;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
   z-index: 2;
 }
 
@@ -343,7 +344,7 @@
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  background: #4CAF50;
+  background: #45d549;
   color: white;
   border-radius: 50%;
   width: 24px;
@@ -611,6 +612,6 @@
 }
 
 .complete {
-  color: #155724 !important;
+  color: #45d549 !important;
   font-weight: bold;
 }

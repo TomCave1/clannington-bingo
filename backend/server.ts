@@ -379,45 +379,58 @@ async function fetchBingoData(pageId: string) {
 
             // Define team mappings
             const teamMappings = [
-                { name: "Bonessa's Billionaire Club", sheet: "BBC", cell: "AH2" },
-                { name: "Kris' Kanker Kunts", sheet: "Kris' KK", cell: "AH2" },
-                { name: "Subo's Spaffers", sheet: "SS", cell: "AH2" },
-                { name: "Greenboots Goon Squad", sheet: "GGS", cell: "AH2" },
-                { name: "The eJackulators", sheet: "EJs", cell: "AH2" }
+                { name: "Bonessa's Billionaire Club", sheet: "BBC", scoreCell: "AH2", tilesCell: "AH1" },
+                { name: "Kris' Kanker Kunts", sheet: "Kris' KK", scoreCell: "AH2", tilesCell: "AH1" },
+                { name: "Subo's Spaffers", sheet: "SS", scoreCell: "AH2", tilesCell: "AH1" },
+                { name: "Greenboots Goon Squad", sheet: "GGS", scoreCell: "AH2", tilesCell: "AH1" },
+                { name: "The eJackulators", sheet: "EJs", scoreCell: "AH2", tilesCell: "AH1" }
             ];
 
-            // Fetch scores from each team's sheet
-            const teamScores: { team: string; score: string }[] = [];
+            // Fetch scores and completed tiles from each team's sheet
+            const teamScores: { team: string; score: string; tilesCompleted: string }[] = [];
 
             for (const team of teamMappings) {
                 try {
-                    console.log(`Fetching score for ${team.name} from ${team.sheet}!${team.cell}`);
+                    console.log(`Fetching data for ${team.name} from ${team.sheet}`);
                     console.log(`Using sheet ID: ${config.sheetId}`);
-                    const teamResponse = await sheets.spreadsheets.values.get({
+
+                    // Fetch score from AH2
+                    const scoreResponse = await sheets.spreadsheets.values.get({
                         spreadsheetId: config.sheetId,
-                        range: `${team.sheet}!${team.cell}`,
+                        range: `${team.sheet}!${team.scoreCell}`,
                     });
 
-                    const score = teamResponse.data.values?.[0]?.[0] || '0';
-                    console.log(`Raw response for ${team.name}:`, teamResponse.data.values);
-                    console.log(`Score for ${team.name}: ${score}`);
+                    // Fetch completed tiles from AH1
+                    const tilesResponse = await sheets.spreadsheets.values.get({
+                        spreadsheetId: config.sheetId,
+                        range: `${team.sheet}!${team.tilesCell}`,
+                    });
+
+                    const score = scoreResponse.data.values?.[0]?.[0] || '0';
+                    const tiles = tilesResponse.data.values?.[0]?.[0] || '0';
+
+                    console.log(`Raw score response for ${team.name}:`, scoreResponse.data.values);
+                    console.log(`Raw tiles response for ${team.name}:`, tilesResponse.data.values);
+                    console.log(`Score for ${team.name}: ${score}, Tiles: ${tiles}`);
 
                     teamScores.push({
                         team: team.name,
-                        score: score
+                        score: score,
+                        tilesCompleted: tiles
                     });
                 } catch (error) {
-                    console.error(`Error fetching score for ${team.name}:`, error);
+                    console.error(`Error fetching data for ${team.name}:`, error);
                     teamScores.push({
                         team: team.name,
-                        score: '0'
+                        score: '0',
+                        tilesCompleted: '0'
                     });
                 }
             }
 
             return {
                 data: teamScores,
-                headers: ['team', 'score'],
+                headers: ['team', 'score', 'tilesCompleted'],
                 title: 'Team Score',
                 pageId: 'teamScore'
             };

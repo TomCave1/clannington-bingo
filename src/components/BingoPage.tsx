@@ -171,6 +171,7 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
                                 <tr>
                                     <th>Team</th>
                                     <th>Points</th>
+                                    <th>Tiles</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -184,6 +185,7 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
                                         <tr key={`team-${index}`}>
                                             <td>{item.team}</td>
                                             <td>{item.score}</td>
+                                            <td>{item.tilesCompleted}</td>
                                         </tr>
                                     ))}
                             </tbody>
