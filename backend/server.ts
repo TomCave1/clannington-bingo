@@ -477,7 +477,7 @@ async function fetchBingoData(pageId: string) {
                 'Revs': 3,
                 'F2P': 2,
                 'Voidwaker': 3,
-                "TDs": 2,
+                "TDs": 3,
                 'Parsec': 2,
                 'Zulrah': 4,
                 'Nex': 1,
