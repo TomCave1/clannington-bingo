@@ -442,6 +442,17 @@ async function fetchBingoData(pageId: string) {
                 value: Number(row[2]) || 0
             }));
 
+            // Cap Barrows and Moons values to 4 before merging
+            rawData = rawData.map(item => {
+                if (item.id === 'Barrows' || item.id === 'Moons') {
+                    return {
+                        ...item,
+                        value: Math.min(item.value, 4)
+                    };
+                }
+                return item;
+            });
+
             // Define merge groups
             const mergeGroups = [
                 { ids: ['Barrows', 'Moons'], newId: 'Barrows + Moons' },

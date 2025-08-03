@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface BingoItem {
     [key: string]: string;
@@ -24,6 +24,11 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
     const [error, setError] = useState<string | null>(null);
     const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
 
+    // Use refs to track the current pageId and abort controllers
+    const currentPageIdRef = useRef(pageId);
+    const abortControllerRef = useRef<AbortController | null>(null);
+    const teamScoreAbortControllerRef = useRef<AbortController | null>(null);
+
     if (pageId === 'page1') {
         useEffect(() => {
             fetchBingoData();
@@ -36,6 +41,16 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
     }
 
     const fetchBingoData = async () => {
+        // Cancel any ongoing request
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+
+        // Create new abort controller for this request
+        abortControllerRef.current = new AbortController();
+        const currentPageId = pageId;
+        currentPageIdRef.current = currentPageId;
+
         try {
             setLoading(true);
             setError(null);
@@ -45,8 +60,15 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
                     'Cache-Control': 'no-cache, no-store, must-revalidate',
                     'Pragma': 'no-cache',
                     'Expires': '0'
-                }
+                },
+                signal: abortControllerRef.current.signal
             });
+
+            // Check if this request is still relevant (page hasn't changed)
+            if (currentPageIdRef.current !== currentPageId) {
+                return; // Page changed, ignore this response
+            }
+
             const data = await response.json();
 
             if (data.error) {
@@ -55,13 +77,29 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
                 setBingoData(data);
             }
         } catch (err) {
-            setError('Failed to fetch bingo data. Make sure the backend server is running.');
+            // Only set error if it's not an abort error and the page hasn't changed
+            if (err instanceof Error && err.name !== 'AbortError' && currentPageIdRef.current === currentPageId) {
+                setError('Failed to fetch bingo data. Make sure the backend server is running.');
+            }
         } finally {
-            setLoading(false);
+            // Only update loading state if this is still the current page
+            if (currentPageIdRef.current === currentPageId) {
+                setLoading(false);
+            }
         }
     };
 
     const fetchTeamScoreData = async () => {
+        // Cancel any ongoing team score request
+        if (teamScoreAbortControllerRef.current) {
+            teamScoreAbortControllerRef.current.abort();
+        }
+
+        // Create new abort controller for this request
+        teamScoreAbortControllerRef.current = new AbortController();
+        const currentPageId = pageId;
+        currentPageIdRef.current = currentPageId;
+
         try {
             setLoading(true);
             setError(null);
@@ -73,8 +111,14 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
                     'Cache-Control': 'no-cache, no-store, must-revalidate',
                     'Pragma': 'no-cache',
                     'Expires': '0'
-                }
+                },
+                signal: teamScoreAbortControllerRef.current.signal
             });
+
+            // Check if this request is still relevant (page hasn't changed)
+            if (currentPageIdRef.current !== currentPageId) {
+                return; // Page changed, ignore this response
+            }
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -91,14 +135,32 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
                 setTeamScoreData(data);
             }
         } catch (err) {
-            console.error('Error fetching team score data:', err);
-            const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-            setError(`Failed to fetch team score data: ${errorMessage}`);
-            setTeamScoreData(null);
+            // Only set error if it's not an abort error and the page hasn't changed
+            if (err instanceof Error && err.name !== 'AbortError' && currentPageIdRef.current === currentPageId) {
+                console.error('Error fetching team score data:', err);
+                const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+                setError(`Failed to fetch team score data: ${errorMessage}`);
+                setTeamScoreData(null);
+            }
         } finally {
-            setLoading(false);
+            // Only update loading state if this is still the current page
+            if (currentPageIdRef.current === currentPageId) {
+                setLoading(false);
+            }
         }
     };
+
+    // Cleanup function to abort ongoing requests when component unmounts or page changes
+    useEffect(() => {
+        return () => {
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+            if (teamScoreAbortControllerRef.current) {
+                teamScoreAbortControllerRef.current.abort();
+            }
+        };
+    }, [pageId]);
 
     const toggleItem = (itemId: string) => {
         const newSelected = new Set(selectedItems);
