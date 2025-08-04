@@ -46,15 +46,14 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
     const setLoadingState = (isLoading: boolean, requestType: string) => {
         if (isLoading) {
             pendingRequestsRef.current.add(requestType);
+            setLoading(true);
         } else {
             pendingRequestsRef.current.delete(requestType);
-        }
 
-        // Only set loading to false if no requests are pending
-        if (!isLoading && pendingRequestsRef.current.size === 0) {
-            setLoading(false);
-        } else if (isLoading) {
-            setLoading(true);
+            // Only set loading to false if no requests are pending
+            if (pendingRequestsRef.current.size === 0) {
+                setLoading(false);
+            }
         }
     };
 
@@ -88,6 +87,8 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
             }
 
             const data = await response.json();
+
+            console.log(`Bingo data for ${pageId}:`, data);
 
             if (data.error) {
                 setError(data.error);
@@ -218,6 +219,7 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
     }
 
     if (!bingoData || !bingoData.data || bingoData.data.length === 0) {
+        console.log('No bingo data available:', { bingoData, loading, error, pageId });
         return (
             <div className="bingo-page">
                 <div className="no-data">
@@ -227,7 +229,8 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
         );
     }
 
-    if (!teamScoreData || !teamScoreData.data || teamScoreData.data.length === 0) {
+    // Only check for team score data if we're on page1
+    if (pageId === 'page1' && (!teamScoreData || !teamScoreData.data || teamScoreData.data.length === 0)) {
         return (
             <div className="bingo-page">
                 <div className="no-data">
@@ -255,7 +258,7 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {teamScoreData.data
+                                {teamScoreData?.data
                                     .sort((a, b) => {
                                         const pointsA = Number(a.score || 0);
                                         const pointsB = Number(b.score || 0);
