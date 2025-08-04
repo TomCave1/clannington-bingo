@@ -29,6 +29,9 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
     const abortControllerRef = useRef<AbortController | null>(null);
     const teamScoreAbortControllerRef = useRef<AbortController | null>(null);
 
+    // Track pending requests
+    const pendingRequestsRef = useRef<Set<string>>(new Set());
+
     if (pageId === 'page1') {
         useEffect(() => {
             fetchBingoData();
@@ -39,6 +42,21 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
             fetchBingoData();
         }, [pageId]);
     }
+
+    const setLoadingState = (isLoading: boolean, requestType: string) => {
+        if (isLoading) {
+            pendingRequestsRef.current.add(requestType);
+        } else {
+            pendingRequestsRef.current.delete(requestType);
+        }
+
+        // Only set loading to false if no requests are pending
+        if (!isLoading && pendingRequestsRef.current.size === 0) {
+            setLoading(false);
+        } else if (isLoading) {
+            setLoading(true);
+        }
+    };
 
     const fetchBingoData = async () => {
         // Cancel any ongoing request
@@ -52,7 +70,7 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
         currentPageIdRef.current = currentPageId;
 
         try {
-            setLoading(true);
+            setLoadingState(true, 'bingo');
             setError(null);
             const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:4000' : window.location.origin;
             const response = await fetch(`${apiBase}/api/bingo/${pageId}`, {
@@ -84,7 +102,7 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
         } finally {
             // Only update loading state if this is still the current page
             if (currentPageIdRef.current === currentPageId) {
-                setLoading(false);
+                setLoadingState(false, 'bingo');
             }
         }
     };
@@ -101,7 +119,7 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
         currentPageIdRef.current = currentPageId;
 
         try {
-            setLoading(true);
+            setLoadingState(true, 'teamScore');
             setError(null);
             const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:4000' : window.location.origin;
             const url = `${apiBase}/api/bingo/teamScore`;
@@ -145,7 +163,7 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
         } finally {
             // Only update loading state if this is still the current page
             if (currentPageIdRef.current === currentPageId) {
-                setLoading(false);
+                setLoadingState(false, 'teamScore');
             }
         }
     };
@@ -159,6 +177,8 @@ export default function BingoPage({ pageId, title }: BingoPageProps) {
             if (teamScoreAbortControllerRef.current) {
                 teamScoreAbortControllerRef.current.abort();
             }
+            // Clear pending requests on cleanup
+            pendingRequestsRef.current.clear();
         };
     }, [pageId]);
 
