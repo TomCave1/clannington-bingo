@@ -170,7 +170,8 @@ function processTeamPageData(rows) {
         },
         { ids: ['Gigachad Boots', 'Gigachad Chest', 'Gigachad Helm', 'Gigachad Legs'], newId: 'Gigachad' },
         { ids: ['Mix Up Head', 'Mix Up Legs', 'Mix Up Top'], newId: 'Mix Up' },
-        { ids: ['Jar', 'Pet'], newId: '2 Pets 1 Jar' }
+        { ids: ['Jar', 'Pet'], newId: '2 Pets 1 Jar' },
+        { ids: ['Twinflame Staff'], newId: 'Titans' }
     ];
 
     const limits = {
