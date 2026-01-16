@@ -205,6 +205,7 @@ function processTeamPageData(rows) {
     const points = {
         'Titans': 3,
         'Barrows and Moons': 4,
+        'Gigachad': 3,
         'Huey': 3,
         'SRA': 6,
         'Horn': 5,
@@ -213,7 +214,7 @@ function processTeamPageData(rows) {
         'Visage': 4,
         '2 Pets 1 Jar': 5,
         'Nox Hally': 3,
-        'Any Godsword': 4,
+        'Godsword': 4, // Fixed: was 'Any Godsword', should match limits key
         'LotR': 4,
         'Mega Rare': 6,
         'Revs': 4,
@@ -224,8 +225,10 @@ function processTeamPageData(rows) {
         'Zulrah': 4,
         'Nex': 5,
         'Mix Up': 5,
+        'Doom': 5,
         'Enrage': 5,
         'Dust': 4,
+        'Yama': 5,
         'Boppers': 2,
         'CG': 5,
     };
@@ -311,6 +314,12 @@ function processTeamPageData(rows) {
         // If neither is in the sort order, maintain original order (or sort alphabetically)
         return a.id.localeCompare(b.id);
     });
+
+    // Log any items missing points for debugging
+    const itemsWithoutPoints = mergedData.filter(item => item.points === null || item.points === undefined);
+    if (itemsWithoutPoints.length > 0) {
+        console.warn(`[processTeamPageData] Items without points: ${itemsWithoutPoints.map(i => i.id).join(', ')}`);
+    }
 
     return mergedData;
 }
