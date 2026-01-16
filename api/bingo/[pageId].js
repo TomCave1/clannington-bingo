@@ -316,6 +316,7 @@ function processTeamPageData(rows) {
 
 // Special handling for teamScore
 async function fetchTeamScoreData(sheets, sheetId) {
+    console.log(`[fetchTeamScoreData] Fetching team score data from spreadsheet: ${sheetId}`);
     const teamMappings = [
         { name: "Imagine Bronze Dragons", sheet: "IBD", scoreCell: "AH2", tilesCell: "AH1" },
         { name: "Syndrome of a Down", sheet: "SoaD", scoreCell: "AH2", tilesCell: "AH1" },
@@ -403,6 +404,26 @@ export default async function handler(req, res) {
             return;
         }
 
+        // Log which sheet ID is being used for debugging
+        if (pageId === 'teamScore') {
+            const usedEnvVar = process.env.GOOGLE_SHEET_ID_TEAM_SCORE
+                ? 'GOOGLE_SHEET_ID_TEAM_SCORE'
+                : process.env.GOOGLE_SHEET_ID_PAGE1
+                    ? 'GOOGLE_SHEET_ID_PAGE1'
+                    : 'GOOGLE_SHEET_ID';
+            console.log(`[teamScore] Using sheet ID from ${usedEnvVar}: ${sheetId}`);
+        } else if (['page2', 'page3', 'page4', 'page5', 'page6', 'page7'].includes(pageId)) {
+            // Log environment variables for team pages
+            const teamVar = pageId === 'page2' ? 'TEAM1' :
+                pageId === 'page3' ? 'TEAM2' :
+                    pageId === 'page4' ? 'TEAM3' :
+                        pageId === 'page5' ? 'TEAM4' :
+                            pageId === 'page6' ? 'TEAM5' : 'TEAM6';
+            const teamName = process.env[teamVar];
+            const tilesRange = process.env.TILES;
+            console.log(`[${pageId}] Sheet ID: ${sheetId}, Team var (${teamVar}): ${teamName || 'NOT SET'}, TILES: ${tilesRange || 'NOT SET'}`);
+        }
+
         let data;
         let headers = ['team', 'tilesCompleted', 'score'];
 
@@ -412,7 +433,22 @@ export default async function handler(req, res) {
         } else {
             const range = config.getRange();
             if (!range) {
-                res.status(500).json({ error: 'Range not configured for this page' });
+                // Provide helpful error message indicating which env vars are missing
+                let missingVars = [];
+                if (pageId === 'page2' && !process.env.TEAM1) missingVars.push('TEAM1');
+                if (pageId === 'page3' && !process.env.TEAM2) missingVars.push('TEAM2');
+                if (pageId === 'page4' && !process.env.TEAM3) missingVars.push('TEAM3');
+                if (pageId === 'page5' && !process.env.TEAM4) missingVars.push('TEAM4');
+                if (pageId === 'page6' && !process.env.TEAM5) missingVars.push('TEAM5');
+                if (pageId === 'page7' && !process.env.TEAM6) missingVars.push('TEAM6');
+                if (!process.env.TILES) missingVars.push('TILES');
+
+                const errorMsg = missingVars.length > 0
+                    ? `Range not configured for ${pageId}. Missing environment variables: ${missingVars.join(', ')}`
+                    : `Range not configured for ${pageId}`;
+
+                console.error(`[${pageId}] ${errorMsg}`);
+                res.status(500).json({ error: errorMsg });
                 return;
             }
 
