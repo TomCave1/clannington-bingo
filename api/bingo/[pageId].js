@@ -217,7 +217,7 @@ function processTeamPageData(rows) {
         'Godsword': 4, // Fixed: was 'Any Godsword', should match limits key
         'LotR': 4,
         'Mega Rare': 6,
-        'Revs': 4,
+        'Revs': 6,
         'F2P': 3,
         'Voidwaker': 5,
         "TDs": 3,
